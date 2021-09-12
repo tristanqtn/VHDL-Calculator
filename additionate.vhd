@@ -21,25 +21,55 @@ end behavioral;
 --4 bit Adder Subtractor
 entity 4_bit_adder is
    port(  operande_1, operande_2  : in std_logic_vector(3 downto 0);
-          somme  : out std_logic_vector(3 downto 0);
-          Cout, OVERFLOW : out std_logic);
+          somme  : out std_logic_vector(3 downto 0));
 end 4_bit_adder;
  
 architecture struct of 4_bit_adder is
 
     signal tempo1, tempo2, tempo3, tempo4: std_logic;
  
-    begin
+begin
 
-        bit0: entity work.1_bit_adder(behavioral)
-            port map(operande_1(0), operande_2(0), 0, tempo1, somme(0)); 
-        bit1: entity work.1_bit_adder(behavioral)
-            port map(operande_1(1), operande_2(1), tempo1, tempo2,somme(1)); 
-        bit2: entity work.1_bit_adder(behavioral)
-            port map(operande_1(2), operande_2(2), tempo2, tempo3,somme(2)); 
-        bit3: entity work.1_bit_adder(behavioral)
-            port map(operande_1(3), operande_2(3), tempo3, tempo4,somme(3));
+    bit0: entity work.1_bit_adder(behavioral)
+        port map(operande_1(0), operande_2(0), 0, tempo1, somme(0)); 
+    bit1: entity work.1_bit_adder(behavioral)
+        port map(operande_1(1), operande_2(1), tempo1, tempo2,somme(1)); 
+    bit2: entity work.1_bit_adder(behavioral)
+        port map(operande_1(2), operande_2(2), tempo2, tempo3,somme(2)); 
+    bit3: entity work.1_bit_adder(behavioral)
+        port map(operande_1(3), operande_2(3), tempo3, tempo4,somme(3));
 
-    end struct;
+end struct;
 
 
+entity 4_bit_subtractor is
+    port(  operande_1, operande_2  : in std_logic_vector(3 downto 0);
+            somme  : out std_logic_vector(3 downto 0));
+end  4_bit_subtractor;
+    
+architecture struct of  4_bit_subtractor is
+
+    signal tempo1, tempo2, tempo3, tempo4: std_logic;
+
+begin
+
+    bit0: entity work.1_bit_adder(behavioral)
+        port map(operande_1(0), not(operande_2(0)), 0, tempo1, somme(0)); 
+    bit1: entity work.1_bit_adder(behavioral)
+        port map(operande_1(1), not(operande_2(1)), tempo1, tempo2,somme(1)); 
+    bit2: entity work.1_bit_adder(behavioral)
+        port map(operande_1(2), not(operande_2(2)), tempo2, tempo3,somme(2)); 
+    bit3: entity work.1_bit_adder(behavioral)
+        port map(operande_1(3), not(operande_2(3)), tempo3, tempo4,somme(3));
+
+
+bit0: entity work.1_bit_adder(behavioral)
+        port map(somme(0), 1, 0, tempo1, somme(0)); 
+    bit1: entity work.1_bit_adder(behavioral)
+        port map(somme(1), 0, tempo1, tempo2,somme(1)); 
+    bit2: entity work.1_bit_adder(behavioral)
+        port map(somme(2), 0, tempo2, tempo3,somme(2)); 
+    bit3: entity work.1_bit_adder(behavioral)
+        port map(somme(3), 0, tempo3, tempo4,somme(3));
+
+end struct;
