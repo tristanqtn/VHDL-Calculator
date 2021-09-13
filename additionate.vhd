@@ -39,8 +39,8 @@ begin
     bit3: entity work.1_bit_adder(behavioral)
         port map(operande_1(3), operande_2(3), tempo3, tempo4,somme(3));
 
-end struct;
-
+end struct
+-- un test
 
 entity 4_bit_subtractor is
     port(  operande_1, operande_2  : in std_logic_vector(3 downto 0);
