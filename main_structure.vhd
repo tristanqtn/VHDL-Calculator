@@ -14,7 +14,7 @@ entity main_architecture is
 	( 	--IN
 		signe_main, externe, reset : in std_logic;
 		type_operation : in std_logic_vector (1 downto 0);
-		operande_1_main, operande_2_main : in std_logic_vector (3 downto 0);
+		operande_1_main, operande_2_main, lecture_externe : in std_logic_vector (3 downto 0);
 	  
 		--OUT
 		final_overflow : out std_logic;
@@ -54,7 +54,7 @@ begin
 	f2 : ENTITY sig_operation PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, choix_op => type_operation, full_result => result_2, overflow => overflow_2);
 	
 	-- somme externe non signe
-	f3 : ENTITY un_extern_somme PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main);	
+	f3 : ENTITY un_extern_somme PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, extern_result => lecture_externe, intern_result => result_3, overflow => overflow_3);	
 	
 	-- affichage du résultat sur les 7segs
 	f5 : ENTITY affichage PORT MAP(result => result_main, signe => signe_main, overflow => overflow_main, seg1 => seg1_main, seg2 => seg2_main, seg3 => seg3_main);
@@ -109,7 +109,13 @@ begin
 			
 			-- somme externe non signee 	
 			when op_un_ex =>
-				result_main <= "0000";
+				result_main <= result_3;
+				
+			if(overflow_3 = '1') then -- si le calcul rend une retenue
+				overflow_main <= overflow_3; -- stockage de la retenue dans le signal temporaire
+			else -- sinon
+				overflow_main <= '0';
+			end if;
 				
 			when empty =>
 				result_main <= "0000";
