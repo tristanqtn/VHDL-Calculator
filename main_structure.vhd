@@ -1,29 +1,40 @@
 -- LIBRAIRIES ----------------------------------------------------------------------------
-library IEEE;
-use work.all;
-use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+LIBRARY IEEE;
+USE work.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+USE IEEE.STD_LOGIC_1164.ALL;
+
 ------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------
 -- ARCHITECTURE PRINCIPALE ---------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-entity main_architecture is
-	port 
-	( 	--IN
-		signe_main, externe, reset : in std_logic;
-		type_operation : in std_logic_vector (1 downto 0);
-		operande_1_main, operande_2_main, lecture_externe : in std_logic_vector (3 downto 0);
-	  
+ENTITY main_architecture IS
+	PORT (
+	
+		--IN
+		CLK_main : IN std_logic;
+		signe_main, externe, reset : IN std_logic;
+		reset_button_main : IN std_logic;
+		type_operation : IN std_logic_vector (1 DOWNTO 0);
+		operande_1_main, operande_2_main, lecture_externe : IN std_logic_vector (3 DOWNTO 0);
+ 
+ 
 		--OUT
-		final_overflow : out std_logic;
-		led_off : out std_logic_vector (4 downto 0);
-		final_result  : out std_logic_vector (3 downto 0);
-		seg1_main, seg2_main, seg3_main : out std_logic_vector (7 downto 0)
-	 
+		final_overflow : OUT std_logic;
+		pin_buzzer : OUT std_logic;
+		led_off : OUT std_logic_vector (4 DOWNTO 0);
+		final_result : OUT std_logic_vector (3 DOWNTO 0);
+		seg1_main, seg2_main, seg3_main : OUT std_logic_vector (7 DOWNTO 0);
+ 
+ 
+		--OPERATIONS EXTERNES
+		extern_overflow : IN std_logic;
+		extern_result : IN std_logic_vector (3 DOWNTO 0);
+ 
+		extern_operande_1, extern_operande_2 : OUT std_logic_vector (3 DOWNTO 0) 
 	);
-end main_architecture;
+END main_architecture;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
@@ -32,105 +43,135 @@ end main_architecture;
 ------------------------------------------------------------------------------------------
 --DETAILS DE L'ARCHITECTURE PRINCIPALE ---------------------------------------------------
 ------------------------------------------------------------------------------------------
-architecture behavioral of main_architecture is
+ARCHITECTURE behavioral OF main_architecture IS
 
 	-- états de la machine à état
-	type state is (op_un_in, op_si_in, op_un_ex,  empty);
-	signal current_state, next_state : state;
-	
+	TYPE state IS (op_un_in, op_si_in, op_un_ex, op_si_ex, empty);
+	SIGNAL current_state, next_state : state;
+ 
 	-- variables temporaire pour le transit des informations
-	signal overflow_1, overflow_2, overflow_3, overflow_main, tempo : std_logic;
-	signal result_1, result_2, result_3, result_main  : std_logic_vector (3 downto 0);
-
-begin
+	SIGNAL overflow_1, overflow_2, overflow_main, tempo : std_logic;
+	SIGNAL result_1, result_2, result_3, result_4, result_main : std_logic_vector (3 DOWNTO 0);
+ 
+	SIGNAL signal_extern_operande_1_1, signal_extern_operande_2_1, signal_extern_operande_1_2, signal_extern_operande_2_2 : std_logic_vector (3 DOWNTO 0);
+ 
+BEGIN
 
 	tempo <= '0'; -- a remplacer quand on basculera les entrées des switchs vers la télécommande
 	led_off <= "00000"; --variable seulement utilisée pour éteindre les leds
 
 	-- calcul interne non signe
-	f1 : ENTITY un_operation PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, choix_op => type_operation,  full_result => result_1, overflow => overflow_1);
-	
+	f1 : ENTITY un_operation
+		PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, choix_op => type_operation, full_result => result_1, overflow => overflow_1);
+ 
 	-- calcul interne signe
-	f2 : ENTITY sig_operation PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, choix_op => type_operation, full_result => result_2, overflow => overflow_2);
-	
+	f2 : ENTITY sig_operation
+		PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, choix_op => type_operation, full_result => result_2, overflow => overflow_2);
+ 
 	-- somme externe non signe
-	f3 : ENTITY un_extern_somme PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, extern_result => lecture_externe, intern_result => result_3, overflow => overflow_3);	
-	
+	f3 : ENTITY un_externe_somme
+		PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, extern_result => lecture_externe, intern_result => result_3, operande_extern_1 => signal_extern_operande_1_1, operande_extern_2 => signal_extern_operande_2_1); 
+ 
+	-- somme signee externe
+	f4 : ENTITY sig_externe_somme
+		PORT MAP(operande_1 => operande_1_main, operande_2 => operande_2_main, extern_result => lecture_externe, intern_result => result_4, operande_extern_1 => signal_extern_operande_1_2, operande_extern_2 => signal_extern_operande_2_2);
+ 
 	-- affichage du résultat sur les 7segs
-	f5 : ENTITY affichage PORT MAP(result => result_main, signe => signe_main, overflow => overflow_main, seg1 => seg1_main, seg2 => seg2_main, seg3 => seg3_main);
+	f5 : ENTITY affichage
+		PORT MAP(result => result_main, signe => signe_main, overflow => overflow_main, seg1 => seg1_main, seg2 => seg2_main, seg3 => seg3_main);
 
-	
+	-- buzzer le resultat
+	f6 : ENTITY buzzer
+		PORT MAP(signe => signe_main, s => pin_buzzer, clk => CLK_main, button_reset => reset_button_main, resultat =>result_main);
+		
+ 
 	--------------------------------------------
 	-- MACHINE A ETATS -------------------------
-	process(reset, type_operation, signe_main, externe, operande_1_main, operande_2_main)
-	begin
-	
-		if(reset = '0') then -- reset de la machine, mise à l'état "vide" ou rien ne se passe 
+	PROCESS (reset, type_operation, signe_main, externe, operande_1_main, operande_2_main)
+	BEGIN
+		IF (reset = '0') THEN -- reset de la machine, mise à l'état "vide" ou rien ne se passe
 			current_state <= empty;
-		
-		elsif ((signe_main = '1') and (tempo = '0')) then -- choix du résultat de l'opération interne non signee
+ 
+		ELSIF ((signe_main = '1') AND (tempo = '0')) THEN -- choix du résultat de l'opération interne non signee
 			current_state <= op_un_in;
-		
-		elsif((signe_main = '0') and (tempo = '0')) then -- choix du résultat de l'opération interne signee
+ 
+		ELSIF ((signe_main = '0') AND (tempo = '0')) THEN -- choix du résultat de l'opération interne signee
 			current_state <= op_si_in;
-		
-		elsif((signe_main = '1') and (tempo = '1')) then -- choix du résultat de la somme externe non signee
+ 
+		ELSIF ((signe_main = '1') AND (tempo = '1')) THEN -- choix du résultat de la somme externe non signee
 			current_state <= op_un_ex;
-		
-		end if; -- fin if
-	
-	end process; -- fin process
-	
-	
-	process(current_state)
-	begin
-	
-		case current_state is
-		
+ 
+		ELSIF ((signe_main = '0') AND (tempo = '1')) THEN -- choix du résultat de la somme externe non signee
+			current_state <= op_si_ex;
+		END IF; -- fin if
+ 
+	END PROCESS; -- fin process
+ 
+ 
+	PROCESS (current_state)
+	BEGIN
+		CASE current_state IS
+
 			-- opération interne non signee
-			when op_un_in =>
+			WHEN op_un_in => 
 				result_main <= result_1; -- stockage du résultat dans le signal temporaire
-				
-				if(overflow_1 = '1') then -- si le calcul rend une retenue
-					overflow_main <= overflow_1; -- stockage de la retenue dans le signal temporaire
-				else -- sinon
+
+				IF (overflow_1 = '1') THEN -- si le calcul rend une retenue
+					overflow_main <= '1'; -- stockage de la retenue dans le signal temporaire
+				ELSE -- sinon
 					overflow_main <= '0';
-				end if;
-			
-			-- opération interne signee
-			when op_si_in =>
+				END IF;
+
+				-- opération interne signee
+			WHEN op_si_in => 
 				result_main <= result_2; -- stockage du résultat dans le signal temporaire
-				
-				if(overflow_2 = '1') then -- si le calcul rend une retenue
-					overflow_main <= overflow_2; -- stockage de la retenue dans le signal temporaire
-				else -- sinon
+
+				IF (overflow_2 = '1') THEN -- si le calcul rend une retenue
+					overflow_main <= '1'; -- stockage de la retenue dans le signal temporaire
+				ELSE -- sinon
 					overflow_main <= '0';
-				end if;
-			
-			-- somme externe non signee 	
-			when op_un_ex =>
+				END IF;
+
+				-- somme externe non signee 
+			WHEN op_un_ex => 
+
 				result_main <= result_3;
-				
-			if(overflow_3 = '1') then -- si le calcul rend une retenue
-				overflow_main <= overflow_3; -- stockage de la retenue dans le signal temporaire
-			else -- sinon
-				overflow_main <= '0';
-			end if;
-				
-			when empty =>
+				extern_operande_1 <= signal_extern_operande_1_1;
+				extern_operande_2 <= signal_extern_operande_2_1;
+
+				IF (extern_overflow = '1') THEN -- si le calcul rend une retenue
+					overflow_main <= '1'; -- stockage de la retenue dans le signal temporaire
+				ELSE -- sinon
+					overflow_main <= '0';
+				END IF;
+
+				--somme externe signée
+			WHEN op_si_ex => 
+
+				result_main <= result_4;
+				extern_operande_1 <= signal_extern_operande_1_2;
+				extern_operande_2 <= signal_extern_operande_2_2;
+
+				IF (extern_overflow = '1') THEN-- si le calcul rend une retenue
+					overflow_main <= '1';-- stockage de la retenue dans le signal temporaire
+				ELSE--sinon
+					overflow_main <= '0';
+				END IF;
+
+			WHEN empty => 
 				result_main <= "0000";
-				
-		end case; -- fin case
-	end process; -- fin process
+
+		END CASE; -- fin case
+	END PROCESS; -- fin process
 	--------------------------------------------
 	--------------------------------------------
-	
-	
-	--stockage final des résultats pour pouvoir ensuite les afficher
-	final_result <= result_main; -- resultat operation
-	final_overflow <= overflow_main; -- retenue
-	
-end behavioral;
+
+
+--stockage final des résultats pour pouvoir ensuite les afficher
+final_result <= result_main; -- resultat operation
+final_overflow <= overflow_main; -- retenue
+
+END behavioral;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------

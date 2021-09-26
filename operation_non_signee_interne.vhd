@@ -1,27 +1,25 @@
 -- LIBRAIRIES ----------------------------------------------------------------------------
-library IEEE;
-use work.all;
-use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+LIBRARY IEEE;
+USE work.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 ------------------------------------------------------------------------------------------
-
-
 
 ------------------------------------------------------------------------------------------
 -- OPERATION NON SIGNEE ------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-entity un_operation is 
+ENTITY un_operation IS
 
-    port( 
-			 choix_op: in std_logic_vector (1 downto 0); -- choix du type d'opération à effectuer (2 bits)
-		    operande_1, operande_2 : in std_logic_vector(3 downto 0); -- les deux opérandes reçues (4 bits)
-			 
-			 overflow : out std_logic; -- variable pour indication de resultat dépassant 4 bits (1 bit)
-			 full_result : out std_logic_vector (3 downto 0) -- sortie de l'opération (8 bits)
-		  );
-		  
-end un_operation; 
+	PORT (
+		choix_op : IN std_logic_vector (1 DOWNTO 0); -- choix du type d'opération à effectuer (2 bits)
+		operande_1, operande_2 : IN std_logic_vector(3 DOWNTO 0); -- les deux opérandes reçues (4 bits)
+ 
+		overflow : OUT std_logic; -- variable pour indication de resultat dépassant 4 bits (1 bit)
+		full_result : OUT std_logic_vector (3 DOWNTO 0) -- sortie de l'opération (8 bits)
+	);
+ 
+END un_operation;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
@@ -30,35 +28,33 @@ end un_operation;
 ------------------------------------------------------------------------------------------
 -- STRUCTURE OPERATION NON SIGNEE --------------------------------------------------------
 ------------------------------------------------------------------------------------------
-architecture behavioral of un_operation is 
+ARCHITECTURE behavioral OF un_operation IS
 
-    signal un_result, sum, div, mult, sub, c : unsigned (7 downto 0); -- signaux utilisés pour les calculs 
+	SIGNAL un_result, sum, div, mult, sub, c : unsigned (7 DOWNTO 0); -- signaux utilisés pour les calculs
 
-begin
-
-	sum <= unsigned("0000" & operande_1) + unsigned("0000" & operande_2); -- somme de deux vecteurs binaires non singés sur 4 bits 
-	div <= "00000000" when unsigned(operande_2) = "0000" else (unsigned("0000" & operande_1) / unsigned("0000" & operande_2)); -- division euclidienne de deux vecteurs binaires non singés sur 4 bits si l'operande 2 n'est pas égale à 0000
+BEGIN
+	sum <= unsigned("0000" & operande_1) + unsigned("0000" & operande_2); -- somme de deux vecteurs binaires non singés sur 4 bits
+	div <= "00000000" WHEN unsigned(operande_2) = "0000" ELSE (unsigned("0000" & operande_1) / unsigned("0000" & operande_2)); -- division euclidienne de deux vecteurs binaires non singés sur 4 bits si l'operande 2 n'est pas égale à 0000
 	mult <= unsigned(operande_1) * unsigned(operande_2); -- multiplication de deux vecteurs binaires non singés sur 4 bits
-	sub <= unsigned("0000" & operande_1) - unsigned("0000" & operande_2) when (unsigned(operande_1) >= unsigned(operande_2)) else "00000000"; -- différence dans les entiers naturels de deux vecteurs binaires non singés sur 4 bits
-	
-	
+	sub <= unsigned("0000" & operande_1) - unsigned("0000" & operande_2) WHEN (unsigned(operande_1) >= unsigned(operande_2)) ELSE "00000000"; -- différence dans les entiers naturels de deux vecteurs binaires non singés sur 4 bits
+ 
+ 
 	--sélection du résultat selon le type d'opération choisie
-	WITH choix_op SELECT 
+	WITH choix_op SELECT
 
-			un_result <= 	sum  when "00",
-								mult when "10",
-								sub  when "01",
-								div  when "11";
-			
-   
-	overflow <= '1' when un_result >"1111" else '0';
-	
+	un_result <= sum WHEN "00", 
+	             mult WHEN "10", 
+	             sub WHEN "01", 
+	             div WHEN "11";
+ 
+ 
+	overflow <= '1' WHEN un_result > "1111" ELSE '0';
+ 
 	--stockage du résultat dans la sortie de l'entitée
-	full_result <= std_logic_vector(un_result (3 downto 0));
-	
+	full_result <= std_logic_vector(un_result (3 DOWNTO 0));
+ 
 
-end behavioral;
-
+END behavioral;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------

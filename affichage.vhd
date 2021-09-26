@@ -1,147 +1,158 @@
 -- LIBRAIRIES ----------------------------------------------------------------------------
-library IEEE;
-use work.all;
-use IEEE.STD_LOGIC_1164.ALL;
+LIBRARY IEEE;
+USE work.ALL;
+USE IEEE.STD_LOGIC_1164.ALL;
 ------------------------------------------------------------------------------------------
 
-entity affichage is
-	port 
-	(
-		signe, overflow : in std_logic;
-		result : in std_logic_vector (3 downto 0);
-		
-		seg1, seg2, seg3 : OUT std_logic_vector(7 downto 0)
+
+------------------------------------------------------------------------------------------
+-- ENTITE AFFICHAGE ----------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+ENTITY affichage IS
+	PORT (
+		signe, overflow : IN std_logic;
+		result : IN std_logic_vector (3 DOWNTO 0);
+ 
+		seg1, seg2, seg3 : OUT std_logic_vector(7 DOWNTO 0)
 	);
-end affichage;
+END affichage;
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 
 
-architecture behavioral of affichage is 
+------------------------------------------------------------------------------------------
+-- ARCHITECTURE AFFICHAGE ----------------------------------------------------------------
+------------------------------------------------------------------------------------------
+ARCHITECTURE behavioral OF affichage IS
 
-	signal c : std_logic_vector(3 downto 0);
+	SIGNAL c : std_logic_vector(3 DOWNTO 0);
 
-begin 
-
-	process(result, signe, overflow) -- dès qu'un changment d'etat est repéré sur un_result
-	begin
-	
-		c <= result; --stockage du resulatat unsigned dnas le signal temporaire c 
-		
+BEGIN
+	PROCESS (result, signe, overflow) -- dès qu'un changment d'etat est repéré sur un_result
+	BEGIN
+		c <= result; --stockage du resulatat unsigned dnas le signal temporaire c
+ 
 		--AFFICHAGE NON SIGNE
-		if(signe = '1') then
+		IF (signe = '1') THEN
 			seg3 <= "11111111";
-			
-			if(overflow = '1')then -- overflow donc affichage ERROR
+ 
+			IF (overflow = '1') THEN -- overflow donc affichage ERROR
 				seg3 <= "10000110";
 				seg1 <= "10001000";
 				seg2 <= "10001000";
-			
-			elsif(c = "0000")then	-- 0 -------------------------------------------
-				seg1 <= "11000000";	
+ 
+			ELSIF (c = "0000") THEN -- 0 -------------------------------------------
+				seg1 <= "11000000"; 
 				seg2 <= "11000000";
 
-			elsif(c = "0001")then	-- 1
+			ELSIF (c = "0001") THEN -- 1
 				seg1 <= "11111001";
 				seg2 <= "11000000";
 
-			elsif(c = "0010")then	--2
+			ELSIF (c = "0010") THEN --2
 				seg1 <= "10100100";
 				seg2 <= "11000000";
 
-			elsif(c = "0011")then	-- 3
+			ELSIF (c = "0011") THEN -- 3
 				seg1 <= "10110000";
 				seg2 <= "11000000";
 
-			elsif(c = "0100")then	-- 4
+			ELSIF (c = "0100") THEN -- 4
 				seg1 <= "10011001";
 				seg2 <= "11000000";
 
-			elsif(c = "0101")then	-- 5
+			ELSIF (c = "0101") THEN -- 5
 				seg1 <= "10010010";
 				seg2 <= "11000000";
 
-			elsif(c = "0110")then	-- 6
+			ELSIF (c = "0110") THEN -- 6
 				seg1 <= "10000010";
 				seg2 <= "11000000";
 
-			elsif(c = "0111")then	-- 7
+			ELSIF (c = "0111") THEN -- 7
 				seg1 <= "11111000";
 				seg2 <= "11000000";
 
-			elsif(c = "1000")then	-- 8
+			ELSIF (c = "1000") THEN -- 8
 				seg1 <= "10000000";
 				seg2 <= "11000000";
 
-			elsif(c = "1001")then	-- 9
+			ELSIF (c = "1001") THEN -- 9
 				seg1 <= "10010000";
 				seg2 <= "11000000";
 
-			elsif(c = "1010")then	-- 0	 10 -------------------------------------------
-				seg1 <= "11000000";	
+			ELSIF (c = "1010") THEN -- 0 10 -------------------------------------------
+				seg1 <= "11000000"; 
 				seg2 <= "11111001";
 
-			elsif(c = "1011")then	-- 1
+			ELSIF (c = "1011") THEN -- 1
 				seg1 <= "11111001";
 				seg2 <= "11111001";
 
-			elsif(c = "1100")then	-- 2
+			ELSIF (c = "1100") THEN -- 2
 				seg1 <= "10100100";
 				seg2 <= "11111001";
 
-			elsif(c = "1101")then	-- 3
+			ELSIF (c = "1101") THEN -- 3
 				seg1 <= "10110000";
 				seg2 <= "11111001";
 
-			elsif(c = "1110")then	-- 4
+			ELSIF (c = "1110") THEN -- 4
 				seg1 <= "10011001";
 				seg2 <= "11111001";
 
-			elsif(c = "1111")then	-- 5	
+			ELSIF (c = "1111") THEN -- 5 
 				seg1 <= "10010010";
 				seg2 <= "11111001";
-			end if; -- fin du if
-		
-		--AFFICHAGE SIGNE
-		elsif(signe ='0') then
-		
-			if(c(3) = '1' and overflow = '0')then	--negativité
+			END IF; -- fin du if
+ 
+			--AFFICHAGE SIGNE
+		ELSIF (signe = '0') THEN
+ 
+			IF (c(3) = '1' AND overflow = '0') THEN --negativité
 				seg3 <= "10111111"; --affichage du signe moins
-			elsif(c(3) = '0') then -- sinon 
-				seg3 <= "11111111"; --affichage vide sur le 3eme afficheur 7seg	
-			end if;
-			
-			if(overflow = '1')then -- overflow donc affichage ERROR
+			ELSIF (c(3) = '0') THEN -- sinon
+				seg3 <= "11111111"; --affichage vide sur le 3eme afficheur 7seg 
+			END IF;
+ 
+			IF (overflow = '1') THEN -- overflow donc affichage ERROR
 				seg3 <= "10000110";
 				seg1 <= "10001000";
 				seg2 <= "10001000";
-			
-			elsif(c(2 downto 0) = "000")then	   -- 0 -------------------------------------------
-				seg1 <= "11000000";	
+ 
+			ELSIF (c(2 DOWNTO 0) = "000") THEN -- 0 -------------------------------------------
+				seg1 <= "11000000"; 
 				seg2 <= "11000000";
-			elsif(c(2 downto 0) = "001")then	-- 1
+			ELSIF (c(2 DOWNTO 0) = "001") THEN -- 1
 				seg1 <= "11111001";
 				seg2 <= "11000000";
-			elsif(c(2 downto 0) = "010")then	-- 2
+			ELSIF (c(2 DOWNTO 0) = "010") THEN -- 2
 				seg1 <= "10100100";
 				seg2 <= "11000000";
-			elsif(c(2 downto 0) = "011")then	-- 3
+			ELSIF (c(2 DOWNTO 0) = "011") THEN -- 3
 				seg1 <= "10110000";
 				seg2 <= "11000000";
-			elsif(c(2 downto 0) = "100")then	-- 4
+			ELSIF (c(2 DOWNTO 0) = "100") THEN -- 4
 				seg1 <= "10011001";
 				seg2 <= "11000000";
-			elsif(c(2 downto 0) = "101")then	-- 5
+			ELSIF (c(2 DOWNTO 0) = "101") THEN -- 5
 				seg1 <= "10010010";
 				seg2 <= "11000000";
-			elsif(c(2 downto 0) = "110")then	-- 6
+			ELSIF (c(2 DOWNTO 0) = "110") THEN -- 6
 				seg1 <= "10000010";
 				seg2 <= "11000000";
-			elsif(c(2 downto 0) = "111")then	-- 7
+			ELSIF (c(2 DOWNTO 0) = "111") THEN -- 7
 				seg1 <= "11111000";
 				seg2 <= "11000000";
 
-			end if; -- fin if
-		end if; -- fin if
-end process; -- fin process
-
-
-end behavioral;
+			END IF; -- fin if
+			
+		END IF; -- fin if
+		
+	END PROCESS; -- fin process
+	
+END behavioral;
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
