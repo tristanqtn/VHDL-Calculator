@@ -12,7 +12,7 @@ USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 ENTITY sig_operation IS
 
 	PORT (
-		choix_op : IN std_logic_vector (1 DOWNTO 0); -- choix du type d'opération à effectuer (2 bits)
+		choix_op : IN std_logic; -- choix du type d'opération à effectuer (2 bits)
 		operande_1, operande_2 : IN std_logic_vector (3 DOWNTO 0); -- les deux opérandes reçues (4 bits)
  
 		overflow : OUT std_logic;
@@ -54,10 +54,9 @@ BEGIN
  
 	-- SELECTION de la sortie selon le type d'opération
 	WITH choix_op SELECT
-	tempo_result <= sum_result WHEN "00", -- somme
-	                "00000000" WHEN "01", -- opération inexistante
-	                mult_result WHEN "10", -- multiplication
-	                div_result WHEN "11"; -- division
+	tempo_result <= sum_result WHEN '0', -- somme
+	                mult_result WHEN '1'; -- multiplication
+	             
  
 	overflow <= '1' WHEN tempo_result(5 DOWNTO 0) > "000111" ELSE '0';
  

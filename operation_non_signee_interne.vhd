@@ -12,7 +12,7 @@ USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 ENTITY un_operation IS
 
 	PORT (
-		choix_op : IN std_logic_vector (1 DOWNTO 0); -- choix du type d'opération à effectuer (2 bits)
+		choix_op : IN std_logic; -- choix du type d'opération à effectuer (2 bits)
 		operande_1, operande_2 : IN std_logic_vector(3 DOWNTO 0); -- les deux opérandes reçues (4 bits)
  
 		overflow : OUT std_logic; -- variable pour indication de resultat dépassant 4 bits (1 bit)
@@ -42,10 +42,8 @@ BEGIN
 	--sélection du résultat selon le type d'opération choisie
 	WITH choix_op SELECT
 
-	un_result <= sum WHEN "00", 
-	             mult WHEN "10", 
-	             sub WHEN "01", 
-	             div WHEN "11";
+	un_result <= sum WHEN '0', 
+	             mult WHEN '1';
  
  
 	overflow <= '1' WHEN un_result > "1111" ELSE '0';
