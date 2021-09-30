@@ -3,7 +3,6 @@ LIBRARY IEEE;
 USE work.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 USE IEEE.STD_LOGIC_1164.ALL;
-
 ------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------
@@ -13,24 +12,19 @@ ENTITY main_architecture IS
 	PORT (
 	
 		--IN
-		CLK_main : IN std_logic;
-		signe_main, externe, reset : IN std_logic;
-		reset_button_main : IN std_logic;
-		type_operation : IN std_logic;
-		operande_1_main, operande_2_main, lecture_externe : IN std_logic_vector (3 DOWNTO 0);
- 
+		pin_capteur, bouton_reset_main, bouton_buzzer_main, bouton_signe_main, CLK_main, CLK_buzzer, externe : IN std_logic;
+		lecture_externe : IN std_logic_vector (3 DOWNTO 0);
+		
  
 		--OUT
-		final_overflow : OUT std_logic;
-		pin_buzzer : OUT std_logic;
+		pin_buzzer, final_overflow : OUT std_logic;
 		led_off : OUT std_logic_vector (4 DOWNTO 0);
 		final_result : OUT std_logic_vector (3 DOWNTO 0);
 		seg1_main, seg2_main, seg3_main, seg4_main, seg5_main, seg6_main : OUT std_logic_vector (7 DOWNTO 0);
- 
+		led_signe, led_op, led_cla : OUT std_logic;
  
 		--OPERATIONS EXTERNES
 		extern_overflow_main : IN std_logic;
-
  
 		extern_operande_1, extern_operande_2 : OUT std_logic_vector (3 DOWNTO 0) 
 	);
@@ -51,9 +45,11 @@ ARCHITECTURE behavioral OF main_architecture IS
  
 	-- variables temporaire pour le transit des informations
 	SIGNAL overflow_1, overflow_2, overflow_4, overflow_main, tempo : std_logic;
-	SIGNAL result_1, result_2, result_3, result_4, result_main : std_logic_vector (3 DOWNTO 0);
+	SIGNAL result_1, result_2, result_3, result_4, result_main, operande_1_main, operande_2_main : std_logic_vector (3 DOWNTO 0);
  
 	SIGNAL signal_extern_operande_1_1, signal_extern_operande_2_1, signal_extern_operande_1_2, signal_extern_operande_2_2 : std_logic_vector (3 DOWNTO 0);
+ 
+	SIGNAL signe_main, no_value, reset, type_operation : std_logic;
  
 BEGIN
 
@@ -82,15 +78,16 @@ BEGIN
 
 	-- buzzer le resultat
 	f6 : ENTITY buzzer
-		PORT MAP(signe => signe_main, s => pin_buzzer, clk => CLK_main, button_reset => reset_button_main, resultat =>result_main);
+		PORT MAP(signe => signe_main, s => pin_buzzer, clk => CLK_buzzer, button_reset => bouton_buzzer_main, resultat =>result_main);
 		
-	
+	f7 : ENTITY nec_receiver
+		PORT MAP(signe => signe_main, operateur=>type_operation, op_a => operande_1_main, op_b => operande_2_main, clk => clk_main,  data_in => pin_capteur, bouton_reset => bouton_reset_main, bouton_signe => bouton_signe_main);
  
 	--------------------------------------------
 	-- MACHINE A ETATS -------------------------
-	PROCESS (reset, type_operation, signe_main, externe, operande_1_main, operande_2_main)
+	PROCESS (bouton_reset_main, type_operation, signe_main, externe, operande_1_main, operande_2_main)
 	BEGIN
-		IF (reset = '0') THEN -- reset de la machine, mise à l'état "vide" ou rien ne se passe
+		IF (bouton_reset_main = '0') THEN -- reset de la machine, mise à l'état "vide" ou rien ne se passe
 			current_state <= empty;
  
 		ELSIF ((signe_main = '0') AND (externe = '0')) THEN -- choix du résultat de l'opération interne non signee
@@ -107,6 +104,10 @@ BEGIN
 		END IF; -- fin if
  
 	END PROCESS; -- fin process
+ 
+	led_cla <= '1' when externe = '1' else '0';
+	led_signe <= '1' when signe_main = '1' else '0';
+	led_op <= '1' when type_operation = '1' else '0';
  
  
 	PROCESS (current_state)

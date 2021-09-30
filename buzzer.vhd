@@ -109,9 +109,9 @@ BEGIN
  
 				-- si signé et negatif
 				IF signe = '1' AND resultat(3) = '1' THEN
-					diviseur <= 125e3;
+					diviseur <= 25e3;
 				ELSE
-					diviseur <= 3125e1;
+					diviseur <= 625e1;
 				END IF;
  
 				-- sinon
@@ -120,7 +120,7 @@ BEGIN
  
 				compteur_temps <= compteur_temps + 1; -- compteur temps augment aussi
  
-				IF compteur = diviseur AND compteur_temps < 10e6 AND decompteur > 0 THEN-- si le compteur atteint le diviseur et que le compteur de temps est < .2 seconde
+				IF compteur = diviseur AND compteur_temps < 2e6 AND decompteur > 0 THEN-- si le compteur atteint le diviseur et que le compteur de temps est < .2 seconde
  
 					compteur <= (OTHERS => '0'); -- reset compteur pr continuer de compter
  
@@ -132,7 +132,7 @@ BEGIN
 						toggle <= '0';
 					END IF;
  
-				ELSIF compteur_temps > 35e6 AND decompteur > 0 THEN -- passer a la prochaine cloche .5 secondes apres
+				ELSIF compteur_temps > 8e6 AND decompteur > 0 THEN -- passer a la prochaine cloche .5 secondes apres
  
 					decompteur <= decompteur - 1; -- baisser le decompteur
 					compteur_temps <= (OTHERS => '0'); -- reset le compteur temps
