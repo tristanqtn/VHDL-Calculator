@@ -5,6 +5,9 @@ USE IEEE.NUMERIC_STD.ALL;
 USE IEEE.STD_LOGIC_1164.ALL;
 ------------------------------------------------------------------------------------------
 
+------------------------------------------------------------------------------------------
+--  ENTITE DE RECEPTION DU SIGNAL IR -----------------------------------------------------
+------------------------------------------------------------------------------------------
 ENTITY nec_receiver IS
 	GENERIC (
 		-- number of clocks for the leader code_on signal (assume 50MHZ clock)
@@ -14,47 +17,34 @@ ENTITY nec_receiver IS
 		-- outputs to the 6 7-segment displays. The remote control
 		-- outputs 32 bits of binary data (each byte display as
 		-- 2 7-segment displays)
- 
-		-- output to display when receiver is receiving data
-		rd_data : OUT std_logic;
- 
- 
- 
- 
+	
+		-- IN
 		-- clock, data input, and system reset
- 
 		clk : IN std_logic;
- 
 		data_in : IN std_logic;
- 
- 
- 
-
-		bouton_reset : IN std_logic; -- reset avec bouton
- 
- 
-		op_a : OUT std_logic_vector (3 DOWNTO 0); -- operande a a receptionner
- 
-		op_b : OUT std_logic_vector (3 DOWNTO 0); -- operande b a receptionner
- 
 		bouton_signe : IN std_logic; -- bouton pour passer en signé
- 
-
- 
+		bouton_reset : IN std_logic; -- reset avec bouton
+						
+		--OUT
 		signe : OUT std_logic; -- signé ou non signé
- 
-		operateur : OUT std_logic -- addition ou multiplication
- 
- 
- 
- 
+		rd_data : OUT std_logic;
+		operateur : OUT std_logic; -- addition ou multiplication
+		op_a : OUT std_logic_vector (3 DOWNTO 0); -- operande a a receptionner
+		op_b : OUT std_logic_vector (3 DOWNTO 0) -- operande b a receptionner 
+
  
 	);
- 
- 
- 
 END nec_receiver;
 
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------
+--  ARCHITECTURE IR ----------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 ARCHITECTURE bvh OF nec_receiver IS
 
 	SIGNAL reset : std_logic; -- faire un signal reset
@@ -593,7 +583,8 @@ BEGIN
 		op_b <= partie_2;
 		operateur <= partie_op;
 		signe <= partie_signe;
-
- 
  
 END bvh;
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------

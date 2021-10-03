@@ -80,12 +80,10 @@ BEGIN
 			operande_extern_1 <= inverse_1; -- sortie de l'operande sur les pins GPIO pour utiliser l'additionneur externe
 			operande_extern_2 <= inverse_2; -- sortie de l'operande sur les pins GPIO pour utiliser l'additionneur externe
 
-			--temp <= std_logic_vector(0 - unsigned('0' & tempo_result (2 DOWNTO 0)));
 			overflow <= '0';
 		
 		END IF; 
 	END PROCESS;
-	-- WHEN tempo_result(3) = '1' ELSE tempo_result; -- si le résultat est négatif on fait le complément à 2 pour retrouver la bonne valeur
 
 	intern_result <= temp;
  

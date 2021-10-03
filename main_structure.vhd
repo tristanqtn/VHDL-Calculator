@@ -18,7 +18,7 @@ ENTITY main_architecture IS
  
 		--OUT
 		pin_buzzer, final_overflow : OUT std_logic;
-		led_off : OUT std_logic_vector (4 DOWNTO 0);
+		led_off : OUT std_logic_vector (6 DOWNTO 0);
 		final_result : OUT std_logic_vector (3 DOWNTO 0);
 		seg1_main, seg2_main, seg3_main, seg4_main, seg5_main, seg6_main : OUT std_logic_vector (7 DOWNTO 0);
 		led_signe, led_op, led_cla : OUT std_logic;
@@ -54,7 +54,7 @@ ARCHITECTURE behavioral OF main_architecture IS
 BEGIN
 
 	tempo <= '0'; -- a remplacer quand on basculera les entrées des switchs vers la télécommande
-	led_off <= "00000"; --variable seulement utilisée pour éteindre les leds
+
 
 	-- calcul interne non signe
 	f1 : ENTITY un_operation
@@ -88,8 +88,7 @@ BEGIN
 	PROCESS (bouton_reset_main, type_operation, signe_main, externe, operande_1_main, operande_2_main)
 	BEGIN
 		IF (bouton_reset_main = '0') THEN -- reset de la machine, mise à l'état "vide" ou rien ne se passe
-			current_state <= empty;
- 
+			current_state <= empty;			
 		ELSIF ((signe_main = '0') AND (externe = '0')) THEN -- choix du résultat de l'opération interne non signee
 			current_state <= op_un_in;
  
@@ -102,12 +101,19 @@ BEGIN
 		ELSIF ((signe_main = '1') AND (externe = '1')) THEN -- choix du résultat de la somme externe non signee
 			current_state <= op_si_ex;
 		END IF; -- fin if
+		
+		
+		IF (bouton_reset_main = '0') THEN
+			led_off <= "0001111"; 
+		ELSE
+			led_off <= "0000000"; --variable seulement utilisée pour éteindre les leds
+		END IF;
  
 	END PROCESS; -- fin process
  
 	led_cla <= '1' when externe = '1' else '0';
 	led_signe <= '1' when signe_main = '1' else '0';
-	led_op <= '1' when type_operation = '1' else '0';
+	led_op <= '1' when (type_operation = '1' and externe = '0') else '0';
  
  
 	PROCESS (current_state)
@@ -124,6 +130,7 @@ BEGIN
 					overflow_main <= '0';
 				END IF;
 
+				
 				-- opération interne signee
 			WHEN op_si_in => 
 				result_main <= result_2; -- stockage du résultat dans le signal temporaire
@@ -140,7 +147,7 @@ BEGIN
 				result_main <= result_3;
 				extern_operande_1 <= signal_extern_operande_1_1;
 				extern_operande_2 <= signal_extern_operande_2_1;
-
+				
 				IF (extern_overflow_main = '1') THEN -- si le calcul rend une retenue
 					overflow_main <= '1'; -- stockage de la retenue dans le signal temporaire
 				ELSE -- sinon
@@ -154,6 +161,7 @@ BEGIN
 				extern_operande_1 <= signal_extern_operande_1_2;
 				extern_operande_2 <= signal_extern_operande_2_2;
 
+				
 				IF (overflow_4 = '1') THEN-- si le calcul rend une retenue
 					overflow_main <= '1';-- stockage de la retenue dans le signal temporaire
 				ELSE--sinon
