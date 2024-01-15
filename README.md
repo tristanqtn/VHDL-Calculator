@@ -1,35 +1,18 @@
-===================================== PROJET DE VHDL S3 =====================================
+# Calculatrice VHDL 
 
+**Calculatrice FPGA avec Mode Signé**
 
-=============================================================================================
-03/10/2021
-=============================================================================================
+Projet VHDL réalisé par Leopold Rombaut, Victor Ratti, Tristan Querton, et Matia Cilly, sous la supervision des professeurs Mr. Chollet et Mr. Schneider, à l'ECE Paris - Lyon.
 
+La calculatrice développée est une version simplifiée des calculatrices du marché. Elle peut effectuer des additions et multiplications avec des opérandes saisies via une télécommande infrarouge. Le résultat est affiché sur les afficheurs de la carte, accompagné d'un signal sonore et d'une représentation binaire sur des LEDs externes.
 
-=============================================================================================
-Projet realise par : Leopold Rombaut, Victor Ratti, Tristan Querton, Matia Cilly
+La calculatrice peut également utiliser un composant externe, l'additionneur à retenue anticipée 74LS283L. Un mode signé permet à l'utilisateur de réaliser des opérations avec des nombres positifs et négatifs, représentés par des LEDs intégrées à la carte.
 
-Professeur : Mr Chollet, Mr Schneider
+Ce projet a été entièrement réalisé en VHDL, exploitant les capacités de la carte FPGA DE10-Lite d'Intel.
 
-Etablissement : ECE Paris - Lyon
-=============================================================================================
-
-
-=============================================================================================
-La calculatrice à réaliser est une version simplifiée des calculatrice disponibles sur le marché. Cette dernière doit pouvoir additionner ou multiplier les opérandes reçues. Ces opérandes sont saisies à l'aide d'une télécommande infrarouge. Enfin, le résultat de l'opération doit être présenté sur les afficheurs de la carte, bippé par une buzzer externe et affiché en binaires sur des LEDS externes.
-
-La calculatrice doit aussi pouvoir effectuer les opérations à l'aide d'un composant externe, l'additionneur à retenue anticipé 74LS283L. De plus, la calculatrice propose un mode signé, qui permet à l'utilisateur de réaliser des opérations avec des nombres positifs et négatifs. Ces modes devront être représenté à l'aide des LEDS embarquées dans la carte.
-
-Ce projet sera réalisé entièrement en langage VHDL. Ce langage de description, utilisé avec une carte FPGA, offre de nombreuses possibilités et des ressources presque illimité pour la réalisation du projet. La carte utilisé pour ce projet est la DE10-Lite proposée par Intel FPGA.
-=============================================================================================
-
-
-=============================================================================================
-Sources : 
-
-Chaine youtube de BenEater :https://www.youtube.com/channel/UCS0N5baNlQWJCUrhCEo8WlA
-Datasheet du 74LS283 :https://mil.ufl.edu/4712/docs/sn74ls283rev5.pdf
-Guide VHDL :https://www.ics.uci.edu/~jmoorkan/vhdlref/
-Module de réception IR :https://www.circuitvalley.com/2013/09/nec-protocol-ir-infrared-remote-control.html
-Cours de VHDL S3 - ECE Paris :https://pedago-ece.campusonline.me/course/view.php?id=5882ING2 
-=============================================================================================
+**Sources :**
+- Chaine YouTube de BenEater: [BenEater YouTube](https://www.youtube.com/channel/UCS0N5baNlQWJCUrhCEo8WlA)
+- Datasheet du 74LS283 : [74LS283 Datasheet](https://mil.ufl.edu/4712/docs/sn74ls283rev5.pdf)
+- Guide VHDL : [VHDL Reference](https://www.ics.uci.edu/~jmoorkan/vhdlref/)
+- Module de réception IR : [IR Remote Control](https://www.circuitvalley.com/2013/09/nec-protocol-ir-infrared-remote-control.html)
+- Cours de VHDL S3 - ECE Paris : [Cours VHDL](https://pedago-ece.campusonline.me/course/view.php?id=5882ING2)
